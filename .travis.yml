@@ -1,0 +1,10 @@
+language: go
+
+go:
+    - 1.13.x
+    - master
+script:
+    - go mod tidy
+    - go test ./...
+env:
+  - GO111MODULE=on
