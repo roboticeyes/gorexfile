@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 
@@ -213,9 +212,7 @@ func main() {
 	app.Flags = GlobalFlags
 
 	app.Action = func(c *cli.Context) error {
-
-		commands.InfoAction(c)
-		return nil
+		return commands.InfoAction(c)
 	}
 
 	app.Commands = []*cli.Command{
@@ -224,7 +221,7 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		// Currently ignore errors here
 	}
 
 	// if len(os.Args) == 1 {

@@ -1,9 +1,7 @@
 package commands
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 
 	"github.com/gookit/color"
 	"github.com/roboticeyes/gorexfile/encoding/rex"
@@ -22,16 +20,14 @@ func InfoAction(ctx *cli.Context) error {
 
 	rexFile := ctx.Args().First()
 
-	file, err := os.Open(rexFile)
-	if err != nil {
-		color.Red.Println("Cannot open file ", rexFile)
-		return err
+	if rexFile == "" {
+		color.Red.Println("Please specify a REX file ...")
+		return fmt.Errorf("REXfile is empty")
 	}
-	r := bufio.NewReader(file)
-	d := rex.NewDecoder(r)
-	rexHeader, rexContent, err := d.Decode()
-	if err != nil && err.Error() != "unexpected EOF" {
-		panic(err)
+
+	rexHeader, rexContent, err := OpenRexFile(rexFile)
+	if err != nil {
+		return err
 	}
 
 	fmt.Println(rexHeader)
