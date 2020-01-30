@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/roboticeyes/gorexfile/encoding/rexfile"
+	"github.com/roboticeyes/gorexfile/encoding/rex"
 )
 
 func getSceneNode(id, geometryID uint64, tx, ty, tz, scale float32) rex.SceneNode {

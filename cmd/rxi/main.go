@@ -7,11 +7,18 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
 	"github.com/go-gl/mathgl/mgl32"
-	rex "github.com/roboticeyes/gorexfile/encoding/rexfile"
+	"github.com/roboticeyes/gorexfile/cmd/rxi/commands"
+	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/urfave/cli/v2"
+)
+
+const (
+	version = "v0.1"
 )
 
 var (
@@ -171,93 +178,6 @@ func rexBbox(rexFile string) {
 	fmt.Println("BoundingBox MAX: ", bbmax)
 }
 
-func rexInfo(rexFile string) {
-	openRexFile(rexFile)
-
-	fmt.Println(rexHeader)
-
-	// Meshes
-	if len(rexContent.Meshes) > 0 {
-		fmt.Printf("Meshes (%d)\n", len(rexContent.Meshes))
-		fmt.Printf("%10s %8s %8s %12s %s\n", "ID", "#Vtx", "#Tri", "Material", "Name")
-		for _, mesh := range rexContent.Meshes {
-			fmt.Printf("%10d %8d %8d %12d %s\n", mesh.ID, len(mesh.Coords), len(mesh.Triangles), mesh.MaterialID, mesh.Name)
-		}
-	}
-	// Materials
-	if len(rexContent.Materials) > 0 {
-		fmt.Printf("Materials (%d)\n", len(rexContent.Materials))
-		fmt.Printf("%10s %17s %16s %16s %5s %5s %s\n", "ID", "Ambient", "Diffuse", "Specular", "Ns", "Opacity", "TextureID (ADS)")
-		for _, mat := range rexContent.Materials {
-			texA, texD, texS := int(mat.KaTextureID), int(mat.KdTextureID), int(mat.KsTextureID)
-			if mat.KaTextureID == rex.NotSpecified {
-				texA = -1
-			}
-			if mat.KdTextureID == rex.NotSpecified {
-				texD = -1
-			}
-			if mat.KsTextureID == rex.NotSpecified {
-				texS = -1
-			}
-			fmt.Printf("%10d, [%.2f,%.2f,%.2f] [%.2f,%.2f,%.2f] [%.2f,%.2f,%.2f] %5.1f %7.2f [%d,%d,%d]\n", mat.ID,
-				mat.KaRgb.X(), mat.KaRgb.Y(), mat.KaRgb.Z(),
-				mat.KdRgb.X(), mat.KdRgb.Y(), mat.KdRgb.Z(),
-				mat.KsRgb.X(), mat.KsRgb.Y(), mat.KsRgb.Z(),
-				mat.Ns, mat.Alpha,
-				texA, texD, texS)
-		}
-	}
-	// Images
-	if len(rexContent.Images) > 0 {
-		fmt.Printf("Images (%d)\n", len(rexContent.Images))
-		fmt.Printf("%10s %8s %12s\n", "ID", "Compression", "Bytes")
-		for _, img := range rexContent.Images {
-			compression := "raw"
-			if img.Compression == 1 {
-				compression = "jpg"
-			} else if img.Compression == 2 {
-				compression = "png"
-			}
-			fmt.Printf("%10d %11s %12d\n", img.ID, compression, len(img.Data))
-		}
-	}
-
-	// PointList
-	if len(rexContent.PointLists) > 0 {
-		fmt.Printf("PointLists (%d)\n", len(rexContent.PointLists))
-		fmt.Printf("%10s %8s %8s\n", "ID", "#Vtx", "#Col")
-		for _, pl := range rexContent.PointLists {
-			fmt.Printf("%10d %8d %8d\n", pl.ID, len(pl.Points), len(pl.Colors))
-		}
-	}
-
-	// LineSet
-	if len(rexContent.LineSets) > 0 {
-		fmt.Printf("LineSets (%d)\n", len(rexContent.LineSets))
-		fmt.Printf("%10s %8s %8s\n", "ID", "#Vtx", "#Col")
-		for _, pl := range rexContent.LineSets {
-			fmt.Printf("%10d %8d %8d\n", pl.ID, len(pl.Points), len(pl.Colors))
-		}
-	}
-
-	// SceneNodes
-	if len(rexContent.SceneNodes) > 0 {
-		fmt.Printf("SceneNodes (%d)\n", len(rexContent.SceneNodes))
-		fmt.Printf("%10s %14s %21s %28s %21s %s\n", "ID", "GeometryID", "Translation", "Rotation", "Scale", "Name")
-		for _, pl := range rexContent.SceneNodes {
-
-			fmt.Printf("%10d %14d [%+.2f, %+.2f, %+.2f] [%+.2f, %+.2f, %+.2f, %+.2f] [%+.2f, %+.2f, %+.2f] %s\n", pl.ID, pl.GeometryID,
-				pl.Translation.X(), pl.Translation.Y(), pl.Translation.Z(),
-				pl.Rotation.X(), pl.Rotation.Y(), pl.Rotation.Z(), pl.Rotation.W(),
-				pl.Scale.X(), pl.Scale.Y(), pl.Scale.Z(), pl.Name)
-		}
-	}
-
-	if rexContent.UnknownBlocks > 0 {
-		fmt.Printf("Unknown blocks (%d)\n", rexContent.UnknownBlocks)
-	}
-}
-
 func rexScaleVertices(factor float32, input, output string) {
 
 	openRexFile(input)
@@ -283,39 +203,63 @@ func rexScaleVertices(factor float32, input, output string) {
 }
 
 func main() {
-	if len(os.Args) == 1 {
-		help(0)
+
+	app := cli.NewApp()
+	app.Name = "rxi"
+	app.Usage = "REXfile inspector"
+	app.Version = version
+	app.Copyright = "(c) 2020 Robotic Eyes GmbH"
+	app.EnableBashCompletion = true
+	app.Flags = GlobalFlags
+
+	app.Action = func(c *cli.Context) error {
+
+		commands.InfoAction(c)
+		return nil
 	}
 
-	if _, err := os.Stat(os.Args[1]); err == nil {
-		rexInfo(os.Args[1])
-		return
+	app.Commands = []*cli.Command{
+		commands.InfoCommand,
 	}
 
-	action := os.Args[1]
-
-	switch action {
-	case "help":
-		help(0)
-	case "-v":
-		fmt.Printf("rxi v%s-%s\n", Version, Build)
-	case "bbox":
-		rexBbox(os.Args[2])
-	case "translate":
-		rexTranslate(os.Args[2], 2200, -125, 1800, "spring_infra.rex")
-	case "img":
-		rexExtractImage(os.Args[3], os.Args[2])
-	case "mesh":
-		rexShowMesh(os.Args[3], os.Args[2])
-	case "lines":
-		rexShowLines(os.Args[3], os.Args[2])
-	case "scale":
-		factor, err := strconv.ParseFloat(os.Args[2], 64)
-		if err != nil {
-			panic(err)
-		}
-		rexScaleVertices(float32(factor), os.Args[3], os.Args[4])
-	default:
-		help(1)
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	// if len(os.Args) == 1 {
+	// 	help(0)
+	// }
+	//
+	// if _, err := os.Stat(os.Args[1]); err == nil {
+	// 	rexInfo(os.Args[1])
+	// 	return
+	// }
+	//
+	// action := os.Args[1]
+	//
+	// switch action {
+	// case "help":
+	// 	help(0)
+	// case "-v":
+	// 	fmt.Printf("rxi v%s-%s\n", Version, Build)
+	// case "bbox":
+	// 	rexBbox(os.Args[2])
+	// case "translate":
+	// 	rexTranslate(os.Args[2], 2200, -125, 1800, "spring_infra.rex")
+	// case "img":
+	// 	rexExtractImage(os.Args[3], os.Args[2])
+	// case "mesh":
+	// 	rexShowMesh(os.Args[3], os.Args[2])
+	// case "lines":
+	// 	rexShowLines(os.Args[3], os.Args[2])
+	// case "scale":
+	// 	factor, err := strconv.ParseFloat(os.Args[2], 64)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	rexScaleVertices(float32(factor), os.Args[3], os.Args[4])
+	// default:
+	// 	help(1)
+	// }
 }
