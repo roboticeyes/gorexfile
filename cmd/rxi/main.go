@@ -217,6 +217,7 @@ func main() {
 
 	app.Commands = []*cli.Command{
 		commands.InfoCommand,
+		commands.BboxCommand,
 	}
 
 	err := app.Run(os.Args)
@@ -224,22 +225,7 @@ func main() {
 		// Currently ignore errors here
 	}
 
-	// if len(os.Args) == 1 {
-	// 	help(0)
-	// }
-	//
-	// if _, err := os.Stat(os.Args[1]); err == nil {
-	// 	rexInfo(os.Args[1])
-	// 	return
-	// }
-	//
-	// action := os.Args[1]
-	//
 	// switch action {
-	// case "help":
-	// 	help(0)
-	// case "-v":
-	// 	fmt.Printf("rxi v%s-%s\n", Version, Build)
 	// case "bbox":
 	// 	rexBbox(os.Args[2])
 	// case "translate":

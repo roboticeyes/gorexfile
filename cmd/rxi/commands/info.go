@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 
-	"github.com/gookit/color"
 	"github.com/roboticeyes/gorexfile/encoding/rex"
 	"github.com/urfave/cli/v2"
 )
@@ -18,14 +17,7 @@ var InfoCommand = &cli.Command{
 // InfoAction is the default action, therefore it is set to public
 func InfoAction(ctx *cli.Context) error {
 
-	rexFile := ctx.Args().First()
-
-	if rexFile == "" {
-		color.Red.Println("Please specify a REX file ...")
-		return fmt.Errorf("REXfile is empty")
-	}
-
-	rexHeader, rexContent, err := OpenRexFile(rexFile)
+	rexHeader, rexContent, err := OpenRexFileFromContext(ctx)
 	if err != nil {
 		return err
 	}
