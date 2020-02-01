@@ -218,6 +218,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		commands.InfoCommand,
 		commands.BboxCommand,
+		commands.TranslateCommand,
 	}
 
 	err := app.Run(os.Args)
@@ -226,10 +227,6 @@ func main() {
 	}
 
 	// switch action {
-	// case "bbox":
-	// 	rexBbox(os.Args[2])
-	// case "translate":
-	// 	rexTranslate(os.Args[2], 2200, -125, 1800, "spring_infra.rex")
 	// case "img":
 	// 	rexExtractImage(os.Args[3], os.Args[2])
 	// case "mesh":

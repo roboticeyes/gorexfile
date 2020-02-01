@@ -41,7 +41,8 @@ func BboxAction(ctx *cli.Context) error {
 			}
 		}
 	}
-	fmt.Println("BoundingBox MIN: ", bbmin)
-	fmt.Println("BoundingBox MAX: ", bbmax)
+	fmt.Println("BoundingBox in worldspace (z is up)")
+	fmt.Printf("\tmin: %9.2f %9.2f %9.2f\n", bbmin.X(), bbmin.Z(), bbmin.Y())
+	fmt.Printf("\tmax: %9.2f %9.2f %9.2f\n", bbmax.X(), bbmax.Z(), bbmax.Y())
 	return nil
 }
