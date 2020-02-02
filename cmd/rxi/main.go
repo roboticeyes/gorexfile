@@ -219,27 +219,13 @@ func main() {
 		commands.InfoCommand,
 		commands.BboxCommand,
 		commands.TranslateCommand,
+		commands.ImageCommand,
+		commands.MeshCommand,
+		commands.ScaleCommand,
 	}
 
 	err := app.Run(os.Args)
 	if err != nil {
 		// Currently ignore errors here
 	}
-
-	// switch action {
-	// case "img":
-	// 	rexExtractImage(os.Args[3], os.Args[2])
-	// case "mesh":
-	// 	rexShowMesh(os.Args[3], os.Args[2])
-	// case "lines":
-	// 	rexShowLines(os.Args[3], os.Args[2])
-	// case "scale":
-	// 	factor, err := strconv.ParseFloat(os.Args[2], 64)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	rexScaleVertices(float32(factor), os.Args[3], os.Args[4])
-	// default:
-	// 	help(1)
-	// }
 }

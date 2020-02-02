@@ -17,10 +17,6 @@ var TranslateCommand = &cli.Command{
 	Usage:  "Translates the whole REXfile",
 	Action: TranslateAction,
 	Flags: []cli.Flag{
-		&cli.StringFlag{
-			Name:  "o",
-			Usage: "output file",
-		},
 		&cli.Float64Flag{
 			Name:  "x",
 			Usage: "x translation in world space [m]",
