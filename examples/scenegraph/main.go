@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"os"
+
 	// "bytes"
 	// "math"
-	"github.com/roboticeyes/gorexfile/encoding/rexfile"
+	"github.com/roboticeyes/gorexfile/encoding/rex"
 )
 
 func main() {
