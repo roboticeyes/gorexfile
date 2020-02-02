@@ -25,4 +25,4 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v cmd/rxi/*
+      run: go test -v ./...
