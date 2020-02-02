@@ -1,5 +1,6 @@
-// Copyright 2020 Robotic Eyes. All rights reserved.
-
+// This binary can be used to work with a REXfile on the command prompt.
+// Get additional information by using the --help argument.
+// The binary can be compiled either by using go build or by the "make" command.
 package main
 
 import (
