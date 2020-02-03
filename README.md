@@ -6,7 +6,7 @@
   <img style="float: right;" src="assets/rex-go.png" alt="goREX logo"/>
 </p>
 
-# GoRexFile
+# GoREXFile
 
 The `gorexfile` library implements a Go reader and writer for the REXfile binary format. The REXfile
 is used for [rexOS](https://www.rexos.org). The library can easily be integrated into your Go
