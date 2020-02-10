@@ -43,6 +43,7 @@ func main() {
 		commands.TranslateCommand,
 		commands.ImageCommand,
 		commands.MeshCommand,
+		commands.LineSetCommand,
 		commands.ScaleCommand,
 	}
 
