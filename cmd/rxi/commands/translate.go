@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/gookit/color"
-	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 	"github.com/urfave/cli/v2"
 )
 
@@ -72,7 +72,7 @@ func TranslateAction(ctx *cli.Context) error {
 	defer f.Close()
 
 	var buf bytes.Buffer
-	e := rex.NewEncoder(&buf)
+	e := rexfile.NewEncoder(&buf)
 	err = e.Encode(*rexContent)
 	if err != nil {
 		panic(err)

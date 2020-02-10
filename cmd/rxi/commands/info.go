@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 
-	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 	"github.com/urfave/cli/v2"
 )
 
@@ -38,13 +38,13 @@ func InfoAction(ctx *cli.Context) error {
 		fmt.Printf("%10s %17s %16s %16s %5s %5s %s\n", "ID", "Ambient", "Diffuse", "Specular", "Ns", "Opacity", "TextureID (ADS)")
 		for _, mat := range rexContent.Materials {
 			texA, texD, texS := int(mat.KaTextureID), int(mat.KdTextureID), int(mat.KsTextureID)
-			if mat.KaTextureID == rex.NotSpecified {
+			if mat.KaTextureID == rexfile.NotSpecified {
 				texA = -1
 			}
-			if mat.KdTextureID == rex.NotSpecified {
+			if mat.KdTextureID == rexfile.NotSpecified {
 				texD = -1
 			}
-			if mat.KsTextureID == rex.NotSpecified {
+			if mat.KsTextureID == rexfile.NotSpecified {
 				texS = -1
 			}
 			fmt.Printf("%10d, [%.2f,%.2f,%.2f] [%.2f,%.2f,%.2f] [%.2f,%.2f,%.2f] %5.1f %7.2f [%d,%d,%d]\n", mat.ID,

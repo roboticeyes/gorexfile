@@ -7,17 +7,17 @@ import (
 	"os"
 
 	"github.com/roboticeyes/gorexfile/cmd/rxi/commands"
-	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 	"github.com/urfave/cli/v2"
 )
 
 const (
-	version = "v0.2"
+	version = "v0.3"
 )
 
 var (
-	rexHeader  *rex.Header
-	rexContent *rex.File
+	rexHeader  *rexfile.Header
+	rexContent *rexfile.File
 	// Version string from ldflags
 	Version string
 	// Build string from ldflags

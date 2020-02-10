@@ -1,4 +1,4 @@
-package rex
+package rexfile
 
 const (
 	// NotSpecified is used if no material or no texture image is set

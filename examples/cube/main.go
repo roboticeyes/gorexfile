@@ -7,11 +7,11 @@ import (
 	"os"
 
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 )
 
-func getSceneNode(id, geometryID uint64, tx, ty, tz, scale float32) rex.SceneNode {
-	return rex.SceneNode{
+func getSceneNode(id, geometryID uint64, tx, ty, tz, scale float32) rexfile.SceneNode {
+	return rexfile.SceneNode{
 		ID:          id,
 		GeometryID:  geometryID,
 		Translation: mgl32.Vec3{tx, ty, tz},
@@ -22,14 +22,14 @@ func getSceneNode(id, geometryID uint64, tx, ty, tz, scale float32) rex.SceneNod
 func explicit(fileName string) {
 	fmt.Println("Generating cube (copy) ...")
 
-	rexFile := rex.File{}
+	rexFile := rexfile.File{}
 
 	var id uint64
 	id = 1
 	for x := -10; x < 10; x++ {
 		for y := -10; y < 10; y++ {
 			for z := -10; z < 10; z++ {
-				cube, mat := rex.NewCube(id, id+1, 0.5)
+				cube, mat := rexfile.NewCube(id, id+1, 0.5)
 				rexFile.Meshes = append(rexFile.Meshes, cube)
 				rexFile.Materials = append(rexFile.Materials, mat)
 				id += 2
@@ -39,7 +39,7 @@ func explicit(fileName string) {
 	// rexFile.SceneNodes = append(rexFile.SceneNodes, getSceneNode(4, 1, 4.5, 0, 0, 0.5))
 
 	var buf bytes.Buffer
-	e := rex.NewEncoder(&buf)
+	e := rexfile.NewEncoder(&buf)
 	err := e.Encode(rexFile)
 	if err != nil {
 		panic(err)
@@ -52,9 +52,9 @@ func explicit(fileName string) {
 func instancing(fileName string) {
 	fmt.Println("Generating cube (instancing) ...")
 
-	cube, mat := rex.NewCube(1, 2, 1)
+	cube, mat := rexfile.NewCube(1, 2, 1)
 
-	rexFile := rex.File{}
+	rexFile := rexfile.File{}
 	rexFile.Meshes = append(rexFile.Meshes, cube)
 	rexFile.Materials = append(rexFile.Materials, mat)
 
@@ -70,7 +70,7 @@ func instancing(fileName string) {
 	// rexFile.SceneNodes = append(rexFile.SceneNodes, getSceneNode(4, 1, 4.5, 0, 0, 0.5))
 
 	var buf bytes.Buffer
-	e := rex.NewEncoder(&buf)
+	e := rexfile.NewEncoder(&buf)
 	err := e.Encode(rexFile)
 	if err != nil {
 		panic(err)
@@ -84,9 +84,9 @@ func instancing(fileName string) {
 func rotation(fileName string) {
 	fmt.Println("Generating cube (rotation) ...")
 
-	cube, mat := rex.NewCube(1, 2, 1)
+	cube, mat := rexfile.NewCube(1, 2, 1)
 
-	rexFile := rex.File{}
+	rexFile := rexfile.File{}
 	rexFile.Meshes = append(rexFile.Meshes, cube)
 	rexFile.Materials = append(rexFile.Materials, mat)
 
@@ -94,7 +94,7 @@ func rotation(fileName string) {
 	rotY := FromEuler(0, math.Pi/4, 0)
 	rotZ := FromEuler(0, 0, math.Pi/4)
 
-	rexFile.SceneNodes = append(rexFile.SceneNodes, rex.SceneNode{
+	rexFile.SceneNodes = append(rexFile.SceneNodes, rexfile.SceneNode{
 		ID:          3,
 		GeometryID:  1,
 		Translation: mgl32.Vec3{-5, 0, 0},
@@ -102,7 +102,7 @@ func rotation(fileName string) {
 		Scale:       mgl32.Vec3{1, 1, 1},
 	})
 
-	rexFile.SceneNodes = append(rexFile.SceneNodes, rex.SceneNode{
+	rexFile.SceneNodes = append(rexFile.SceneNodes, rexfile.SceneNode{
 		ID:          4,
 		GeometryID:  1,
 		Translation: mgl32.Vec3{5, 0, 0},
@@ -110,7 +110,7 @@ func rotation(fileName string) {
 		Scale:       mgl32.Vec3{1, 1, 1},
 	})
 
-	rexFile.SceneNodes = append(rexFile.SceneNodes, rex.SceneNode{
+	rexFile.SceneNodes = append(rexFile.SceneNodes, rexfile.SceneNode{
 		ID:          5,
 		GeometryID:  1,
 		Translation: mgl32.Vec3{0, 0, -5},
@@ -118,7 +118,7 @@ func rotation(fileName string) {
 		Scale:       mgl32.Vec3{1, 1, 1},
 	})
 
-	rexFile.SceneNodes = append(rexFile.SceneNodes, rex.SceneNode{
+	rexFile.SceneNodes = append(rexFile.SceneNodes, rexfile.SceneNode{
 		ID:          6,
 		GeometryID:  1,
 		Translation: mgl32.Vec3{0, 0.5, 0},
@@ -126,7 +126,7 @@ func rotation(fileName string) {
 	})
 
 	var buf bytes.Buffer
-	e := rex.NewEncoder(&buf)
+	e := rexfile.NewEncoder(&buf)
 	err := e.Encode(rexFile)
 	if err != nil {
 		panic(err)

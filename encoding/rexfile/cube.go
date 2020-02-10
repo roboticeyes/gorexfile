@@ -1,4 +1,4 @@
-package rex
+package rexfile
 
 import (
 	"github.com/go-gl/mathgl/mgl32"

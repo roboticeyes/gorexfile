@@ -1,4 +1,4 @@
-// Package rex implements a reader and writer for the REXfile binary file
+// Package rexfile implements a reader and writer for the REXfile binary file
 //
 // Source code and other details for the project are available at GitHub:
 //
@@ -6,4 +6,4 @@
 //
 // Please see the file specification for the REXfile at
 // https://github.com/roboticeyes/openrex/blob/master/doc/rex-spec-v1.md
-package rex
+package rexfile

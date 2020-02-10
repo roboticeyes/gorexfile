@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/gookit/color"
-	"github.com/roboticeyes/gorexfile/encoding/rex"
+	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 	"github.com/urfave/cli/v2"
 )
 
@@ -18,6 +18,7 @@ var ScaleCommand = &cli.Command{
 	Flags: []cli.Flag{
 		&cli.Float64Flag{
 			Name:  "factor",
+			Value: 1.0,
 			Usage: "Scaling factor (1.0 means no scaling)",
 		},
 	},
@@ -61,7 +62,7 @@ func ScaleAction(ctx *cli.Context) error {
 	defer f.Close()
 
 	var buf bytes.Buffer
-	e := rex.NewEncoder(&buf)
+	e := rexfile.NewEncoder(&buf)
 	err = e.Encode(*rexContent)
 	if err != nil {
 		panic(err)

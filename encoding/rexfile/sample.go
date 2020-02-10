@@ -1,4 +1,4 @@
-package rex
+package rexfile
 
 // SampleRex returns a valid REX buffer containing colored points
 func SampleRex() []byte {
