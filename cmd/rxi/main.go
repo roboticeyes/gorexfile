@@ -38,15 +38,16 @@ func main() {
 	}
 
 	app.Commands = []*cli.Command{
-		commands.InfoCommand,
 		commands.BboxCommand,
-		commands.TranslateCommand,
 		commands.ImageCommand,
-		commands.MeshCommand,
+		commands.ImportCommand,
+		commands.InfoCommand,
 		commands.LineSetCommand,
+		commands.MeshCommand,
 		commands.ScaleCommand,
-		commands.TrackCommand,
 		commands.TextCommand,
+		commands.TrackCommand,
+		commands.TranslateCommand,
 	}
 
 	err := app.Run(os.Args)
