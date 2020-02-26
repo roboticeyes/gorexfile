@@ -3,6 +3,10 @@ package translate
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/breiting/gwob"
 	"github.com/go-gl/mathgl/mgl32"
@@ -53,30 +57,77 @@ func (o *ObjToRex) Translate() (rexfile.File, error) {
 	}
 
 	vtxMap := make(map[int]int)
+	texMap := make(map[string]uint64)
 	dataID := uint64(1)
 
 	for _, g := range obj.Groups {
 
+		materialID := dataID
 		if mtlMat, exists := mtl.Lib[g.Usemtl]; exists {
-			rexMat := rexfile.NewMaterial(dataID)
+			rexMat := rexfile.NewMaterial(materialID)
 			rexMat.KdRgb = mgl32.Vec3{mtlMat.Kd[0], mtlMat.Kd[1], mtlMat.Kd[2]}
+
+			// add texture
+			if mtlMat.MapKd != "" {
+
+				// check if already available as block
+				imgBlockID, ok := texMap[mtlMat.MapKd]
+				if !ok {
+					// check type
+					imgType := rexfile.Raw24
+					if strings.ToLower(filepath.Ext(mtlMat.MapKd)) == ".png" {
+						imgType = rexfile.Png
+					} else if strings.ToLower(filepath.Ext(mtlMat.MapKd)) == ".jpg" {
+						imgType = rexfile.Jpeg
+					}
+
+					imgReader, err := os.Open(mtlMat.MapKd)
+					if err != nil {
+						panic(err)
+					}
+					buf, err := ioutil.ReadAll(imgReader)
+					if err != nil {
+						panic(err)
+					}
+					dataID++
+					imgBlockID = dataID
+
+					img := rexfile.Image{
+						ID:          imgBlockID,
+						Compression: uint32(imgType),
+						Data:        buf,
+					}
+					rexFile.Images = append(rexFile.Images, img)
+					texMap[mtlMat.MapKd] = imgBlockID
+				}
+
+				rexMat.KdTextureID = imgBlockID
+			}
 			rexFile.Materials = append(rexFile.Materials, rexMat)
 		} else {
 			fmt.Println("Group ", g.Name, " has no material, taking default")
-			rexFile.Materials = append(rexFile.Materials, rexfile.NewMaterial(dataID))
+			rexFile.Materials = append(rexFile.Materials, rexfile.NewMaterial(materialID))
 		}
 		dataID++
 
 		// Get geometry
-		mesh := rexfile.Mesh{ID: dataID, MaterialID: dataID - 1, Name: g.Name}
+		mesh := rexfile.Mesh{ID: dataID, MaterialID: materialID, Name: g.Name}
 		var c int
 		var triangle [3]uint32
+		var u, v float32
 		for idx := g.IndexBegin; idx < g.IndexBegin+g.IndexCount; idx++ {
 			oldVertexIndex := obj.Indices[idx]
 
-			x := obj.Coord[oldVertexIndex*obj.StrideSize/4]
-			y := obj.Coord[oldVertexIndex*obj.StrideSize/4+1]
-			z := obj.Coord[oldVertexIndex*obj.StrideSize/4+2]
+			stride := obj.StrideSize / 4
+			p := stride + obj.StrideOffsetPosition/4
+			x := obj.Coord[oldVertexIndex*p]
+			y := obj.Coord[oldVertexIndex*p+1]
+			z := obj.Coord[oldVertexIndex*p+2]
+
+			if obj.TextCoordFound {
+				u = obj.Coord[oldVertexIndex*p+3]
+				v = obj.Coord[oldVertexIndex*p+4]
+			}
 
 			rexCoordinate := rexifyObjCoordinate(x, y, z)
 
@@ -84,6 +135,9 @@ func (o *ObjToRex) Translate() (rexfile.File, error) {
 				triangle[c] = uint32(i)
 			} else {
 				mesh.Coords = append(mesh.Coords, rexCoordinate)
+				if obj.TextCoordFound {
+					mesh.TexCoords = append(mesh.TexCoords, mgl32.Vec2{u, v})
+				}
 				triangle[c] = uint32(len(mesh.Coords) - 1)
 				vtxMap[oldVertexIndex] = len(mesh.Coords) - 1
 			}

@@ -17,7 +17,7 @@ func TestWriteImage(t *testing.T) {
 	}
 	img := Image{
 		ID:          11,
-		Compression: png,
+		Compression: Png,
 		Data:        b,
 	}
 
@@ -49,7 +49,7 @@ func TestReadImage(t *testing.T) {
 	if img.ID != hdr.ID {
 		t.Fatal("ID does not match")
 	}
-	if img.Compression != png {
+	if img.Compression != Png {
 		t.Fatal("Compression does not match")
 	}
 
