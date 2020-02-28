@@ -11,7 +11,7 @@ import (
 func main() {
 	fileName := "testText.rex"
 
-	text := rexfile.Text{ID: 1, Text: "rudi", Red: 23, Green: 34, Blue: 22, Alpha: 3, FontSize: 12}
+	text := rexfile.Text{ID: 1, Text: "TestText", Red: 23, Green: 34, Blue: 22, Alpha: 3, FontSize: 12}
 	text.Position = mgl32.Vec3{0.5, 1.0, 0.0}
 
 	rexFile := rexfile.File{}
