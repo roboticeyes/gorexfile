@@ -29,7 +29,13 @@ func (enc *Encoder) Encode(r File) error {
 		}
 	}
 
-	// TODO TEXT
+	// Write Text
+	for _, t := range r.Texts {
+		err = t.Write(enc.w)
+		if err != nil {
+			return err
+		}
+	}
 
 	// Write PointLists
 	for _, p := range r.PointLists {

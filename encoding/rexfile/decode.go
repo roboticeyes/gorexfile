@@ -42,7 +42,11 @@ func (dec *Decoder) Decode() (*Header, *File, error) {
 			if err == nil {
 				file.LineSets = append(file.LineSets, *ls)
 			}
-		// case typeText: TODO
+		case typeText:
+			t, err := ReadText(dec.r, hdr)
+			if err == nil {
+				file.Texts = append(file.Texts, *t)
+			}
 		case typePointList:
 			pointList, err := ReadPointList(dec.r, hdr)
 			if err == nil {

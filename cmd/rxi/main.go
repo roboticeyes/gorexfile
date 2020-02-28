@@ -46,6 +46,7 @@ func main() {
 		commands.LineSetCommand,
 		commands.ScaleCommand,
 		commands.TrackCommand,
+		commands.TextCommand,
 	}
 
 	err := app.Run(os.Args)

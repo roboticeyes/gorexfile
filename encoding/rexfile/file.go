@@ -10,6 +10,7 @@ const (
 // the Encoder.
 type File struct {
 	LineSets      []LineSet
+	Texts         []Text
 	PointLists    []PointList
 	Meshes        []Mesh
 	Materials     []Material
@@ -25,6 +26,11 @@ func (f *File) Header() *Header {
 	header := CreateHeader()
 
 	for _, b := range f.LineSets {
+		header.NrBlocks++
+		header.SizeBytes += (uint64)(b.GetSize())
+	}
+
+	for _, b := range f.Texts {
 		header.NrBlocks++
 		header.SizeBytes += (uint64)(b.GetSize())
 	}
