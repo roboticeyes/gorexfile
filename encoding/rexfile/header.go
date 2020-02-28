@@ -11,16 +11,14 @@ const (
 	rexDataBlockHeaderSize = 16
 
 	// Supported block types
-	typeLineSet          = 0
-	typeText             = 1
-	typePointList        = 2
-	typeMesh             = 3
-	typeImage            = 4
-	typeMaterial         = 5
-	typePeopleSimulation = 6
-	typeUnityPackage     = 7
-	typeSceneNode        = 8
-	typeTrack            = 33333
+	typeLineSet   = 0
+	typeText      = 1
+	typePointList = 2
+	typeMesh      = 3
+	typeImage     = 4
+	typeMaterial  = 5
+	typeSceneNode = 6
+	typeTrack     = 7
 )
 
 // Header defines the structure of the REX header
