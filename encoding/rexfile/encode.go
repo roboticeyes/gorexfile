@@ -1,7 +1,6 @@
 package rexfile
 
 import (
-	"fmt"
 	"io"
 )
 
@@ -33,7 +32,6 @@ func (enc *Encoder) Encode(r File) error {
 	// Write Text
 	for _, t := range r.Texts {
 		err = t.Write(enc.w)
-		fmt.Println("write text")
 		if err != nil {
 			return err
 		}
