@@ -84,6 +84,22 @@ func TestEncodingMesh(t *testing.T) {
 	}
 }
 
+func TestEncodingText(t *testing.T) {
+
+	text := Text{ID: 1, Text: "rudi", Red: 23, Green: 34, Blue: 22, Alpha: 3, FontSize: 12}
+	text.Position = mgl32.Vec3{0.5, 1.0, 0.0}
+
+	rexFile := File{}
+	rexFile.Texts = append(rexFile.Texts, text)
+
+	var buf bytes.Buffer
+	e := NewEncoder(&buf)
+	err := e.Encode(rexFile)
+	if err != nil {
+		t.Fatalf("TEST ERROR: %v", err)
+	}
+}
+
 func TestEncodingMeshAndMaterial(t *testing.T) {
 
 	mesh := Mesh{ID: 1, MaterialID: 0, Name: "test"}

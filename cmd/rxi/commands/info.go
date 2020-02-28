@@ -110,6 +110,15 @@ func InfoAction(ctx *cli.Context) error {
 		}
 	}
 
+	// Text
+	if len(rexContent.Texts) > 0 {
+		fmt.Printf("Text (%d)\n", len(rexContent.Texts))
+		fmt.Printf("%10s %8s\n", "ID", "Text")
+		for _, t := range rexContent.Texts {
+			fmt.Printf("%10d %8s\n", t.ID, t.Text)
+		}
+	}
+
 	if rexContent.UnknownBlocks > 0 {
 		fmt.Printf("Unknown blocks (%d)\n", rexContent.UnknownBlocks)
 	}
