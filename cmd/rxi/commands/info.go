@@ -101,6 +101,15 @@ func InfoAction(ctx *cli.Context) error {
 		}
 	}
 
+	// Track
+	if len(rexContent.Tracks) > 0 {
+		fmt.Printf("Tracks (%d)\n", len(rexContent.Tracks))
+		fmt.Printf("%10s %8s\n", "ID", "#Points")
+		for _, t := range rexContent.Tracks {
+			fmt.Printf("%10d %8d\n", t.ID, len(t.Points))
+		}
+	}
+
 	if rexContent.UnknownBlocks > 0 {
 		fmt.Printf("Unknown blocks (%d)\n", rexContent.UnknownBlocks)
 	}

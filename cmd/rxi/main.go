@@ -45,6 +45,7 @@ func main() {
 		commands.MeshCommand,
 		commands.LineSetCommand,
 		commands.ScaleCommand,
+		commands.TrackCommand,
 	}
 
 	err := app.Run(os.Args)
