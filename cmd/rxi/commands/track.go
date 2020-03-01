@@ -41,7 +41,7 @@ func TrackAction(ctx *cli.Context) error {
 			fmt.Printf("Number of points %d\n", track.NrOfPoints)
 			for _, elem := range track.Points {
 				fmt.Printf("v %5.2f %5.2f %5.2f\n", elem.Point[0], elem.Point[1], elem.Point[2])
-				fmt.Printf("n %5.2f %5.2f %5.2f\n", elem.NormalVec[0], elem.NormalVec[1], elem.NormalVec[2])
+				fmt.Printf("n %5.2f %5.2f %5.2f\n", elem.Orientation[0], elem.Orientation[1], elem.Orientation[2])
 				fmt.Printf("c %5.2f\n\n", elem.Confidence)
 			}
 		}

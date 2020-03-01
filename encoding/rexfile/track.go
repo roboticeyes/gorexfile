@@ -12,15 +12,16 @@ const (
 	trackBlockVersion = 1
 )
 
-// A TrackElement for a track consists of its x,y,z coordinate, the normalized normal vector and a
+// A TrackElement for a track consists of its x,y,z coordinate, the orientation which is denoted
+// as a normalized normal vector pointing from the device to the world (LookAt vector) and a
 // confidence value.
 type TrackElement struct {
-	Point      mgl32.Vec3
-	NormalVec  mgl32.Vec3
-	Confidence float32
+	Point       mgl32.Vec3
+	Orientation mgl32.Vec3
+	Confidence  float32
 }
 
-// Track datastructure
+// Track consists of a list of 3D points with orientation
 type Track struct {
 	ID         uint64
 	NrOfPoints uint32
@@ -97,17 +98,17 @@ func (block *Track) Write(w io.Writer) error {
 		}
 
 		// normalize normal vector
-		p.NormalVec = p.NormalVec.Normalize()
+		p.Orientation = p.Orientation.Normalize()
 
-		err = binary.Write(w, binary.LittleEndian, p.NormalVec.X())
+		err = binary.Write(w, binary.LittleEndian, p.Orientation.X())
 		if err != nil {
 			return err
 		}
-		err = binary.Write(w, binary.LittleEndian, p.NormalVec.Y())
+		err = binary.Write(w, binary.LittleEndian, p.Orientation.Y())
 		if err != nil {
 			return err
 		}
-		err = binary.Write(w, binary.LittleEndian, p.NormalVec.Z())
+		err = binary.Write(w, binary.LittleEndian, p.Orientation.Z())
 		if err != nil {
 			return err
 		}
