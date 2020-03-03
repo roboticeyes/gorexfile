@@ -17,6 +17,9 @@ GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
 
+INSTALL_PATH=/usr/local/bin
+MAN_PATH=/usr/local/man
+
 PKGS := $(shell go list ./... | grep -v /vendor)
 
 # Use linker flags to provide version/build settings to the target
@@ -38,14 +41,9 @@ test:
 	$(GOTEST) $(PKGS)
 
 install: all
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f $(TARGETS) ${DESTDIR}${PREFIX}/bin
-	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	sed "s/VERSION/${VERSION}/g" < rxi.1 > ${DESTDIR}${MANPREFIX}/man1/rxi.1
-	chmod 644 ${DESTDIR}${MANPREFIX}/man1/rxi.1
+	sudo cp -f $(TARGETS) ${INSTALL_PATH}
 
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/rxi\
-		${DESTDIR}${MANPREFIX}/man1/rxi.1
+	sudo rm -f ${INSTALL_PATH}/rxi
 
 .PHONY: all test install uninstall
