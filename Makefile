@@ -28,15 +28,25 @@ LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 RXI_SRC = cmd/rxi/*.go
 OBJ2REX_SRC = cmd/obj2rex/*.go
 
-TARGETS = rxi obj2rex
+TARGETS_LINUX = rxi obj2rex
+TARGETS_WINDOWS = rxi.exe obj2rex.exe
+TARGETS = $(TARGETS_LINUX) $(TARGETS_WINDOWS)
 
 all: rxi obj2rex
+
+windows: rxi-win obj2rex-win
 
 rxi: $(RXI_SRC)
 	$(GOBUILD) -o $@ $(LDFLAGS) $(RXI_SRC)
 
+rxi-win: $(RXI_SRC)
+	GOOS=windows $(GOBUILD) -o rxi.exe $(LDFLAGS) $(RXI_SRC)
+
 obj2rex: $(OBJ2REX_SRC)
 	$(GOBUILD) -o $@ $(LDFLAGS) $(OBJ2REX_SRC)
+
+obj2rex-win: $(OBJ2REX_SRC)
+	GOOS=windows $(GOBUILD) -o obj2rex.exe $(LDFLAGS) $(OBJ2REX_SRC)
 
 clean:
 	@rm -f $(TARGETS)
@@ -46,6 +56,10 @@ test:
 
 install: all
 	sudo cp -f $(TARGETS) ${INSTALL_PATH}
+
+package: all windows
+	zip package-v$(VERSION)-linux.zip $(TARGETS_LINUX) LICENSE README.md
+	zip package-v$(VERSION)-win.zip $(TARGETS_WINDOWS) LICENSE README.md
 
 uninstall:
 	sudo rm -f ${INSTALL_PATH}/rxi

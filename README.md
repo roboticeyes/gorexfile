@@ -51,11 +51,17 @@ Please see the `examples` folder for further samples.
 `rxi` is a simple command line tool which simply dumps REX file informations to the command line. It also allows to
 extract images from the file directly. For more information, please call `rxi` directly.
 
-# Todos
+```
+rxi --help
+```
 
-## REX File IO
+### obj2rex
 
-* [ ] Data block text
+Simple OBJ to REX converter.
+
+```
+obj2rex --help
+```
 
 ## References
 
