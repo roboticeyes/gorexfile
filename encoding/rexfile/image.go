@@ -11,9 +11,9 @@ const (
 )
 
 const (
-	raw24 = iota
-	jpeg
-	png
+	Raw24 = iota
+	Jpeg
+	Png
 )
 
 // Image datastructure

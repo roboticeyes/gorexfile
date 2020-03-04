@@ -10,12 +10,15 @@
 # 	install: Installs the binaries
 # 	test: Runs the tests
 #
-VERSION := 1.0.0
+VERSION := 0.3.2
 BUILD := `git rev-parse HEAD`
 
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOTEST=$(GOCMD) test
+
+INSTALL_PATH=/usr/local/bin
+MAN_PATH=/usr/local/man
 
 PKGS := $(shell go list ./... | grep -v /vendor)
 
@@ -23,13 +26,17 @@ PKGS := $(shell go list ./... | grep -v /vendor)
 LDFLAGS=-ldflags "-X=main.Version=$(VERSION) -X=main.Build=$(BUILD)"
 
 RXI_SRC = cmd/rxi/*.go
+OBJ2REX_SRC = cmd/obj2rex/*.go
 
-TARGETS = rxi
+TARGETS = rxi obj2rex
 
-all: rxi
+all: rxi obj2rex
 
 rxi: $(RXI_SRC)
 	$(GOBUILD) -o $@ $(LDFLAGS) $(RXI_SRC)
+
+obj2rex: $(OBJ2REX_SRC)
+	$(GOBUILD) -o $@ $(LDFLAGS) $(OBJ2REX_SRC)
 
 clean:
 	@rm -f $(TARGETS)
@@ -38,14 +45,10 @@ test:
 	$(GOTEST) $(PKGS)
 
 install: all
-	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f $(TARGETS) ${DESTDIR}${PREFIX}/bin
-	mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	sed "s/VERSION/${VERSION}/g" < rxi.1 > ${DESTDIR}${MANPREFIX}/man1/rxi.1
-	chmod 644 ${DESTDIR}${MANPREFIX}/man1/rxi.1
+	sudo cp -f $(TARGETS) ${INSTALL_PATH}
 
 uninstall:
-	rm -f ${DESTDIR}${PREFIX}/bin/rxi\
-		${DESTDIR}${MANPREFIX}/man1/rxi.1
+	sudo rm -f ${INSTALL_PATH}/rxi
+	sudo rm -f ${INSTALL_PATH}/obj2rex
 
 .PHONY: all test install uninstall

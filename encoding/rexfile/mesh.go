@@ -231,6 +231,7 @@ func (m Mesh) String() string {
 	s += fmt.Sprintf("| Name           | %-41s |\n", m.Name)
 	s += fmt.Sprintf("| MaterialID     | %-41d |\n", m.MaterialID)
 	s += fmt.Sprintf("| # Coords       | %-41d |\n", len(m.Coords))
+	s += fmt.Sprintf("| # TexCoords    | %-41d |\n", len(m.TexCoords))
 	s += fmt.Sprintf("| # Normals      | %-41d |\n", len(m.Normals))
 	s += fmt.Sprintf("| # Colors       | %-41d |\n", len(m.Colors))
 	s += fmt.Sprintf("| # Triangle     | %-41d |\n", len(m.Triangles))
@@ -238,6 +239,14 @@ func (m Mesh) String() string {
 
 	for i, c := range m.Coords {
 		s += fmt.Sprintf(" %5v \n", c)
+		if i > 100 {
+			s += fmt.Sprintf(" ... cutting off here ...\n")
+			break
+		}
+	}
+	s += fmt.Sprintf("\n--- TexCoords\n\n")
+	for i, t := range m.TexCoords {
+		s += fmt.Sprintf(" %5v \n", t)
 		if i > 100 {
 			s += fmt.Sprintf(" ... cutting off here ...\n")
 			break

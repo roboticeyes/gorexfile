@@ -19,8 +19,9 @@ var ImageCommand = &cli.Command{
 			Usage: "Image block ID",
 		},
 		&cli.StringFlag{
-			Name:  "o",
-			Usage: "output file",
+			Name:    "out",
+			Aliases: []string{"o"},
+			Usage:   "output file",
 		},
 	},
 }
@@ -28,7 +29,7 @@ var ImageCommand = &cli.Command{
 // ImageAction calculates the bounding box
 func ImageAction(ctx *cli.Context) error {
 
-	output := ctx.String("o")
+	output := ctx.String("out")
 
 	_, rexContent, err := OpenRexFileFromContext(ctx)
 	if err != nil {
