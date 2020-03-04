@@ -11,10 +11,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const (
-	version = "v0.3"
-)
-
 var (
 	rexHeader  *rexfile.Header
 	rexContent *rexfile.File
@@ -29,7 +25,13 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "rxi"
 	app.Usage = "REXfile inspector"
-	app.Version = version
+	app.Version = Version + " - build " + Build
+	app.Description = `
+	This tool displays information about a given REX file. See all the available parameters
+	by using the rxi --help command.
+
+	Example: rxi test.rex
+	`
 	app.Copyright = "(c) 2020 Robotic Eyes GmbH"
 	app.EnableBashCompletion = true
 
@@ -40,7 +42,6 @@ func main() {
 	app.Commands = []*cli.Command{
 		commands.BboxCommand,
 		commands.ImageCommand,
-		commands.ImportCommand,
 		commands.InfoCommand,
 		commands.LineSetCommand,
 		commands.MeshCommand,

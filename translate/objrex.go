@@ -10,6 +10,7 @@ import (
 
 	"github.com/breiting/gwob"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/gookit/color"
 	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 )
 
@@ -20,18 +21,28 @@ const (
 // ObjToRex container
 type ObjToRex struct {
 	objReader io.Reader
-	mtlReader io.Reader
+	inputPath string
 	verbose   bool
 }
 
-// NewObjToRexTranslator returns a new translator for converting OBJ files to REX files
-func NewObjToRexTranslator(objReader, mtlReader io.Reader, verbose bool) *ObjToRex {
+// NewObjToRexTranslator returns a new translator for converting OBJ files to REX files.
+// It tries to open up the files and creates the according reader
+func NewObjToRexTranslator(inputFileName string, verbose bool) (*ObjToRex, error) {
 
-	return &ObjToRex{
-		objReader: objReader,
-		mtlReader: mtlReader,
+	var err error
+	o := &ObjToRex{
+		inputPath: filepath.Dir(inputFileName),
 		verbose:   verbose,
 	}
+
+	// Open OBJ file
+	o.objReader, err = os.Open(inputFileName)
+	if err != nil {
+		color.Red.Println("Cannot read input file:", err)
+		return nil, err
+	}
+
+	return o, nil
 }
 
 // Translate implements the translator interface
@@ -51,9 +62,18 @@ func (o *ObjToRex) Translate() (rexfile.File, error) {
 		return rexFile, err
 	}
 
-	mtl, err := gwob.ReadMaterialLibFromReader(o.mtlReader, &options)
+	// Try to open the MTL file from the same directory
+	var mtl gwob.MaterialLib
+
+	mtlFileName := filepath.Join(o.inputPath, obj.Mtllib)
+	mtlReader, err := os.Open(mtlFileName)
 	if err != nil {
-		return rexFile, err
+		color.Cyan.Println("Cannot open MTL file", mtlFileName, " skipping material information.")
+	} else {
+		mtl, err = gwob.ReadMaterialLibFromReader(mtlReader, &options)
+		if err != nil {
+			color.Cyan.Println("Error reading MTL file: ", err)
+		}
 	}
 
 	vtxMap := make(map[int]int)
@@ -81,7 +101,7 @@ func (o *ObjToRex) Translate() (rexfile.File, error) {
 						imgType = rexfile.Jpeg
 					}
 
-					imgReader, err := os.Open(mtlMat.MapKd)
+					imgReader, err := os.Open(filepath.Join(o.inputPath, mtlMat.MapKd))
 					if err != nil {
 						panic(err)
 					}
