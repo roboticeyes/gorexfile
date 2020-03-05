@@ -97,8 +97,10 @@ func (block *Track) Write(w io.Writer) error {
 			return err
 		}
 
-		// normalize normal vector
-		p.Orientation = p.Orientation.Normalize()
+		// normalize normal vector only if there is a valid direction vector
+		if p.Orientation.Len() > 0 {
+			p.Orientation = p.Orientation.Normalize()
+		}
 
 		err = binary.Write(w, binary.LittleEndian, p.Orientation.X())
 		if err != nil {
