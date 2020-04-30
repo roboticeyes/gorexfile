@@ -43,7 +43,7 @@ func ReadLineSet(r io.Reader, hdr DataBlockHeader) (*LineSet, error) {
 	if err := binary.Read(r, binary.LittleEndian, &ls.Points); err != nil {
 		return nil, fmt.Errorf("Reading coords failed: %v", err)
 	}
-
+	ls.ID = hdr.ID
 	return &ls, nil
 }
 
