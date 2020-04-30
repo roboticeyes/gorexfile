@@ -48,6 +48,7 @@ func ReadPointList(r io.Reader, hdr DataBlockHeader) (*PointList, error) {
 	if err := binary.Read(r, binary.LittleEndian, &pointList.Colors); err != nil {
 		return nil, fmt.Errorf("Reading colors failed: %v", err)
 	}
+	pointList.ID = hdr.ID
 	return &pointList, nil
 }
 

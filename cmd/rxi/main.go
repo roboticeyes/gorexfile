@@ -44,6 +44,7 @@ func main() {
 		commands.ImageCommand,
 		commands.InfoCommand,
 		commands.LineSetCommand,
+		commands.PointsCommand,
 		commands.MeshCommand,
 		commands.ScaleCommand,
 		commands.TextCommand,
