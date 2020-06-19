@@ -13,7 +13,7 @@ func RexToObj(header *rexfile.Header, content *rexfile.File, output io.Writer) e
 
 	w := bufio.NewWriter(output)
 
-	w.WriteString("# Converted by rxi, (c) Robotic Eyes\n")
+	w.WriteString("# Converted by gorexfile, (c) Robotic Eyes\n")
 	w.WriteString(fmt.Sprintf("# REX meshes: %d\n", len(content.Meshes)))
 
 	vtxCounter := uint32(1)
