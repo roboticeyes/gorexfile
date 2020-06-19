@@ -50,6 +50,7 @@ func main() {
 		commands.TextCommand,
 		commands.TrackCommand,
 		commands.TranslateCommand,
+		commands.ExportCommand,
 	}
 
 	err := app.Run(os.Args)
