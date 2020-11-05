@@ -41,6 +41,9 @@ func PointsAction(ctx *cli.Context) error {
 			for _, p := range s.Points {
 				fmt.Println(p[0], p[1], p[2])
 			}
+			for _, p := range s.Colors {
+				fmt.Println(p[0], p[1], p[2])
+			}
 		}
 	}
 
