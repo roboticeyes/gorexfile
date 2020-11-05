@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/gookit/color"
 	"github.com/roboticeyes/gorexfile/translate"
@@ -39,7 +40,7 @@ func ExportAction(ctx *cli.Context) error {
 	}
 	defer f.Close()
 
-	translate.RexToObj(rexHeader, rexContent, f)
+	translate.RexToWavefront(rexHeader, rexContent, filepath.Dir(output), output)
 
 	color.Green.Printf("Successfully exported to file %s\n", output)
 	return nil
