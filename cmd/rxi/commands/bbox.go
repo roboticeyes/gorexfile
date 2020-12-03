@@ -25,7 +25,7 @@ func BboxAction(ctx *cli.Context) error {
 	fmt.Println(rexHeader)
 
 	bbmin := mgl32.Vec3{mgl32.MaxValue, mgl32.MaxValue, mgl32.MaxValue}
-	bbmax := mgl32.Vec3{mgl32.MinValue, mgl32.MinValue, mgl32.MinValue}
+	bbmax := mgl32.Vec3{-mgl32.MaxValue, -mgl32.MaxValue, -mgl32.MaxValue}
 
 	if len(rexContent.Meshes) > 0 {
 		for _, mesh := range rexContent.Meshes {
