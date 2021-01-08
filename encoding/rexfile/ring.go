@@ -1,7 +1,6 @@
 package rexfile
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -9,7 +8,6 @@ import (
 
 // NewRing returns a new ring with specified radius (meters)
 func NewRing(id, matID uint64, radius, height float32, nrOfSegments int, color mgl32.Vec3, doubleSided bool) (Mesh, Material) {
-	fmt.Printf("New Ring meshId: %d materialId: %d\n", id, matID)
 	mesh := Mesh{
 		ID:         id,
 		Name:       "Ring",
