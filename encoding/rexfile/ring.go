@@ -23,7 +23,7 @@ func NewRing(id, matID uint64, radius, height float32, nrOfSegments int, color m
 }
 
 func getRingCoords(radius, height float32, nrOfSegments int) []mgl32.Vec3 {
-	var coords []mgl32.Vec3
+	coords := make([]mgl32.Vec3, 0)
 
 	alpha := 2 * math.Pi / float64(nrOfSegments)
 
@@ -39,7 +39,7 @@ func getRingCoords(radius, height float32, nrOfSegments int) []mgl32.Vec3 {
 }
 
 func getRingTriangles(nrOfSegments int, doubleSided bool) []Triangle {
-	var triangles []Triangle
+	triangles := make([]Triangle, 0)
 	nrOfSegmentsFloat := float64(nrOfSegments * 2)
 
 	for i := 0; i < nrOfSegments*2-1; i = i + 2 {

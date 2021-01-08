@@ -3,28 +3,22 @@ package rexfile
 import (
 	"math"
 
-	"github.com/g3n/engine/gls"
-	"github.com/g3n/engine/math32"
 	"github.com/go-gl/mathgl/mgl32"
 )
 
 // NewSphere returns a new sphere (unit meters)
-func NewSphere(id, matID uint64, size float32) (Mesh, Material) {
+func NewSphere(id, matID uint64, radius float64, widthSegments, heightSegments int, color mgl32.Vec3) (Mesh, Material) {
 
-	phiStart, phiLength, thetaStart, thetaLength := 0, math.Pi*2, 0, math.Pi
+	phiStart, phiLength, thetaStart, thetaLength := 0.0, math.Pi*2, 0.0, math.Pi
 
 	thetaEnd := thetaStart + thetaLength
 	vertexCount := (widthSegments + 1) * (heightSegments + 1)
 
-	// Create buffers
-	positions := math32.NewArrayF32(vertexCount*3, vertexCount*3)
-	normals := math32.NewArrayF32(vertexCount*3, vertexCount*3)
-	uvs := math32.NewArrayF32(vertexCount*2, vertexCount*2)
-	indices := math32.NewArrayU32(0, vertexCount)
+	positions := make([]mgl32.Vec3, vertexCount)
+	triangles := make([]Triangle, 0)
 
 	index := 0
 	vertices := make([][]uint32, 0)
-	var normal math32.Vector3
 
 	for y := 0; y <= heightSegments; y++ {
 		verticesRow := make([]uint32, 0)
@@ -34,11 +28,8 @@ func NewSphere(id, matID uint64, size float32) (Mesh, Material) {
 			px := -radius * math.Cos(phiStart+u*phiLength) * math.Sin(thetaStart+v*thetaLength)
 			py := radius * math.Cos(thetaStart+v*thetaLength)
 			pz := radius * math.Sin(phiStart+u*phiLength) * math.Sin(thetaStart+v*thetaLength)
-			normal.Set(float32(px), float32(py), float32(pz)).Normalize()
 
-			positions.Set(index*3, float32(px), float32(py), float32(pz))
-			normals.SetVector3(index*3, &normal)
-			uvs.Set(index*2, float32(u), float32(v))
+			positions[index] = mgl32.Vec3{float32(px), float32(py), float32(pz)}
 			verticesRow = append(verticesRow, uint32(index))
 			index++
 		}
@@ -52,41 +43,25 @@ func NewSphere(id, matID uint64, size float32) (Mesh, Material) {
 			v3 := vertices[y+1][x]
 			v4 := vertices[y+1][x+1]
 			if y != 0 || thetaStart > 0 {
-				indices.Append(v1, v2, v4)
+				triangles = append(triangles, Triangle{v1, v2, v4})
 			}
 			if y != heightSegments-1 || thetaEnd < math.Pi {
-				indices.Append(v2, v3, v4)
+				triangles = append(triangles, Triangle{v2, v3, v4})
 			}
 		}
 	}
 
-	s.SetIndices(indices)
-	s.AddVBO(gls.NewVBO(positions).AddAttrib(gls.VertexPosition))
-	s.AddVBO(gls.NewVBO(normals).AddAttrib(gls.VertexNormal))
-	s.AddVBO(gls.NewVBO(uvs).AddAttrib(gls.VertexTexcoord))
-
-	r := float32(radius)
-
-	// Update bounding sphere
-	s.boundingSphere.Radius = 3
-	s.boundingSphereValid = true
-
-	// Update bounding box
-	s.boundingBox = math32.Box3{math32.Vector3{-r, -r, -r}, math32.Vector3{r, r, r}}
-	s.boundingBoxValid = true
-
-	return s
-
 	mesh := Mesh{
 		ID:         id,
 		Name:       "Sphere",
-		Coords:     getCoords(scale),
-		Triangles:  getTriangles(),
+		Coords:     positions,
+		Triangles:  triangles,
 		MaterialID: matID,
 	}
 
 	mat := NewMaterial(matID)
-	mat.KdRgb = mgl32.Vec3{0.9, 0.7, 0.1}
+	mat.KdRgb = color
+	mat.Alpha = 0.8
 
 	return mesh, mat
 }
