@@ -8,8 +8,8 @@ import (
 )
 
 // NewRing returns a new ring with specified radius (meters)
-func NewRing(id, matID uint64, radius, height float32, nrOfSegments int, doubleSided bool) (Mesh, Material) {
-
+func NewRing(id, matID uint64, radius, height float32, nrOfSegments int, color mgl32.Vec3, doubleSided bool) (Mesh, Material) {
+	fmt.Printf("New Ring meshId: %d materialId: %d\n", id, matID)
 	mesh := Mesh{
 		ID:         id,
 		Name:       "Ring",
@@ -19,7 +19,7 @@ func NewRing(id, matID uint64, radius, height float32, nrOfSegments int, doubleS
 	}
 
 	mat := NewMaterial(matID)
-	mat.KdRgb = mgl32.Vec3{0.9, 0.7, 0.1}
+	mat.KdRgb = color
 
 	return mesh, mat
 }
@@ -47,20 +47,16 @@ func getRingTriangles(nrOfSegments int, doubleSided bool) []Triangle {
 	for i := 0; i < nrOfSegments*2-1; i = i + 2 {
 		triangle1 := Triangle{V0: uint32(i), V1: uint32(math.Mod(float64(i+2), nrOfSegmentsFloat)), V2: uint32(math.Mod(float64(i+3), nrOfSegmentsFloat))}
 		triangles = append(triangles, triangle1)
-		fmt.Printf("Triangle %d, %d, %d \n", triangle1.V0, triangle1.V1, triangle1.V2)
 
 		if doubleSided {
 			triangles = append(triangles, Triangle{V0: triangle1.V0, V1: triangle1.V2, V2: triangle1.V1})
-			fmt.Printf("Triangle %d, %d, %d \n", triangle1.V0, triangle1.V2, triangle1.V1)
 		}
 
 		triangle2 := Triangle{V0: uint32(i), V1: uint32(math.Mod(float64(i+3), nrOfSegmentsFloat)), V2: uint32(math.Mod(float64(i+1), nrOfSegmentsFloat))}
 		triangles = append(triangles, triangle2)
-		fmt.Printf("Triangle %d, %d, %d \n", triangle2.V0, triangle2.V1, triangle2.V2)
 
 		if doubleSided {
 			triangles = append(triangles, Triangle{V0: triangle2.V0, V1: triangle2.V2, V2: triangle2.V1})
-			fmt.Printf("Triangle %d, %d, %d \n", triangle2.V0, triangle2.V2, triangle2.V1)
 		}
 	}
 
