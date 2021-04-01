@@ -18,7 +18,7 @@ func RexToObj(header *rexfile.Header, content *rexfile.File, writer *bufio.Write
 	vtxCounter := uint32(1)
 	vtxOffset := make(map[int]uint32)
 
-	// write vertices
+	// write mesh vertices
 	for i := 0; i < len(content.Meshes); i++ {
 		vtxOffset[i] = vtxCounter
 		for _, v := range content.Meshes[i].Coords {
@@ -30,7 +30,7 @@ func RexToObj(header *rexfile.Header, content *rexfile.File, writer *bufio.Write
 		vtxCounter += uint32(len(content.Meshes[i].Coords))
 	}
 
-	// write faces
+	// write mesh faces
 	for i := 0; i < len(content.Meshes); i++ {
 		for _, v := range content.Meshes[i].Triangles {
 			if len(content.Meshes[i].TexCoords) > 0 {
@@ -42,6 +42,15 @@ func RexToObj(header *rexfile.Header, content *rexfile.File, writer *bufio.Write
 				writer.WriteString(fmt.Sprintf("f %d %d %d\n", vtxOffset[i]+v.V0, vtxOffset[i]+v.V1, vtxOffset[i]+v.V2))
 			}
 		}
+	}
+
+	// write pointlist (just positions)
+	for i := 0; i < len(content.PointLists); i++ {
+		vtxOffset[i] = vtxCounter
+		for _, v := range content.PointLists[i].Points {
+			writer.WriteString(fmt.Sprintf("v %f %f %f\n", v.X(), v.Y(), v.Z()))
+		}
+		vtxCounter += uint32(len(content.PointLists[i].Points))
 	}
 
 	return nil
