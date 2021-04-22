@@ -51,6 +51,7 @@ func main() {
 		commands.TrackCommand,
 		commands.TranslateCommand,
 		commands.ExportCommand,
+		commands.MirrorCommand,
 	}
 
 	err := app.Run(os.Args)
