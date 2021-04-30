@@ -14,7 +14,7 @@ import (
 // DensityCommand reduces density of pointLists
 var DensityCommand = &cli.Command{
 	Name:   "density",
-	Usage:  "Reduces density of pointLists to an absolute amount or by percentage",
+	Usage:  "Reduces density of pointLists to a specified grid size, an absolute amount or by percentage",
 	Action: DensityActions,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
@@ -27,7 +27,7 @@ var DensityCommand = &cli.Command{
 		&cli.BoolFlag{
 			Name:    "percent",
 			Value:   false,
-			Usage:   "reduction in percent to which every pointList will be reduced",
+			Usage:   "reduction in percent every pointList will be reduced by",
 			Aliases: []string{"pct"},
 		},
 		&cli.BoolFlag{
