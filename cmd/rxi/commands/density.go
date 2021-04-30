@@ -131,25 +131,25 @@ func ReducePointListDensityVoxelBased(ctx *cli.Context, rexContent *rexfile.File
 		averagedColors := make([]mgl32.Vec3, len(voxelGrid))
 		iter := 0
 
-		for key, entryContainer := range voxelGrid {
-			sumLocation := mgl32.Vec3{}
-			sumColor := mgl32.Vec3{}
+		for gridLocation, pointsInGridCell := range voxelGrid {
+			summedLocation := mgl32.Vec3{}
+			summedColor := mgl32.Vec3{}
 
-			for j := 0; j < len(entryContainer); j++ {
-				sumLocation = mgl32.Vec3.Add(entryContainer[j].location, sumLocation)
-				sumColor = mgl32.Vec3.Add(entryContainer[j].color, sumColor)
+			for j := 0; j < len(pointsInGridCell); j++ {
+				summedLocation = mgl32.Vec3.Add(pointsInGridCell[j].location, summedLocation)
+				summedColor = mgl32.Vec3.Add(pointsInGridCell[j].color, summedColor)
 			}
 
 			//translate voxel grid to real-world coords
-			avgLocation := mgl32.Vec3{float32(key.x) * voxelCellSize, float32(key.y) * voxelCellSize, float32(key.z) * voxelCellSize}
+			averagedLocation := mgl32.Vec3{float32(gridLocation.x) * voxelCellSize, float32(gridLocation.y) * voxelCellSize, float32(gridLocation.z) * voxelCellSize}
 
 			//use this instead for avg location, but grid looks nicer
-			//avgLocation := mgl32.Vec3.Mul(sumLocation, float32(1)/float32(len(entryContainer)))
+			//averagedLocation := mgl32.Vec3.Mul(summedLocation, float32(1)/float32(len(pointsInGridCell)))
 
-			avgColor := mgl32.Vec3.Mul(sumColor, float32(1)/float32(len(entryContainer)))
+			averagedColor := mgl32.Vec3.Mul(summedColor, float32(1)/float32(len(pointsInGridCell)))
 
-			averagedPoints[iter] = avgLocation
-			averagedColors[iter] = avgColor
+			averagedPoints[iter] = averagedLocation
+			averagedColors[iter] = averagedColor
 
 			iter++
 		}
