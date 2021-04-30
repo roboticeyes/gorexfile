@@ -18,6 +18,13 @@ var DensityCommand = &cli.Command{
 	Action: DensityActions,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
+			Name:  "resolution",
+			Value: false,
+			Usage: "set the minimum distance between points in meters, this option yields the best results " +
+				"because it evens out the density across the entire point cloud",
+			Aliases: []string{"res"},
+		},
+		&cli.BoolFlag{
 			Name:    "percent",
 			Value:   false,
 			Usage:   "reduction in percent to which every pointList will be reduced",
@@ -39,16 +46,10 @@ var DensityCommand = &cli.Command{
 
 // MirrorActions reduces density of pointLists
 func DensityActions(ctx *cli.Context) error {
-
 	output := ctx.Args().Get(1)
 
-	if ctx.Bool("percent") && ctx.Bool("absolute") {
-		color.Red.Println("Percent and absolute are mutually exclusive")
-		return fmt.Errorf("Mutally exclusive arguments given")
-	}
-
-	if !ctx.Bool("percent") && !ctx.Bool("absolute") {
-		color.Red.Println("Please specify either percent or absolute argument")
+	if !ctx.Bool("resolution") && !ctx.Bool("percent") && !ctx.Bool("absolute") {
+		color.Red.Println("Please specify: resolution, percent or absolute")
 		return fmt.Errorf("No density arguments given")
 	}
 
@@ -67,26 +68,10 @@ func DensityActions(ctx *cli.Context) error {
 		return fmt.Errorf("File contains no PointLists")
 	}
 
-	for i := 0; i < len(rexContent.PointLists); i++ {
-		originalPointListLength := len(rexContent.PointLists[i].Points)
-		reducedPointListLength := GetNewPointListSize(originalPointListLength, ctx.Float64("val"), ctx.Bool("percent"))
-
-		if originalPointListLength <= reducedPointListLength {
-			color.Red.Println("Skipped pointList already smaller or equal to the desired size. PointListID:", rexContent.PointLists[i].ID)
-			continue
-		}
-
-		tempListPoints := make([]mgl32.Vec3, reducedPointListLength)
-		tempListColors := make([]mgl32.Vec3, reducedPointListLength)
-
-		for j := 0; j < reducedPointListLength; j++ {
-			adjustedIndex := int((float64(j) / float64(reducedPointListLength)) * float64(originalPointListLength))
-			tempListPoints[j] = rexContent.PointLists[i].Points[adjustedIndex]
-			tempListColors[j] = rexContent.PointLists[i].Colors[adjustedIndex]
-		}
-
-		rexContent.PointLists[i].Points = tempListPoints
-		rexContent.PointLists[i].Colors = tempListColors
+	if ctx.Bool("resolution") {
+		ReducePointListDensityVoxelBased(ctx, rexContent)
+	} else {
+		ReducePointListDensityNaive(ctx, rexContent)
 	}
 
 	// create new file
@@ -110,7 +95,104 @@ func DensityActions(ctx *cli.Context) error {
 	return nil
 }
 
-func GetNewPointListSize(pointListSize int, reduction float64, isPercentage bool) int {
+type GridLocation struct {
+	x int
+	y int
+	z int
+}
+
+type GridEntry struct {
+	location mgl32.Vec3
+	color    mgl32.Vec3
+}
+
+// ReducePointListDensityVoxelBased evens out and thins out pointLists
+func ReducePointListDensityVoxelBased(ctx *cli.Context, rexContent *rexfile.File) {
+	for i := 0; i < len(rexContent.PointLists); i++ {
+		originalPointListLength := len(rexContent.PointLists[i].Points)
+		voxelCellSize := float32(ctx.Float64("val"))
+
+		//sort points into voxel construct
+		voxelGrid := make(map[GridLocation][]GridEntry)
+
+		for j := 0; j < originalPointListLength; j++ {
+			gridLocation := GetGridLocationOfVec3(rexContent.PointLists[i].Points[j], voxelCellSize)
+			gridEntry := GridEntry{rexContent.PointLists[i].Points[j], rexContent.PointLists[i].Colors[j]}
+
+			if voxelGrid[gridLocation] != nil {
+				voxelGrid[gridLocation] = append(voxelGrid[gridLocation], gridEntry)
+			} else {
+				voxelGrid[gridLocation] = []GridEntry{gridEntry}
+			}
+		}
+
+		//process voxel averages
+		averagedPoints := make([]mgl32.Vec3, len(voxelGrid))
+		averagedColors := make([]mgl32.Vec3, len(voxelGrid))
+		iter := 0
+
+		for key, entryContainer := range voxelGrid {
+			sumLocation := mgl32.Vec3{}
+			sumColor := mgl32.Vec3{}
+
+			for j := 0; j < len(entryContainer); j++ {
+				sumLocation = mgl32.Vec3.Add(entryContainer[j].location, sumLocation)
+				sumColor = mgl32.Vec3.Add(entryContainer[j].color, sumColor)
+			}
+
+			//translate voxel grid to real-world coords
+			avgLocation := mgl32.Vec3{float32(key.x) * voxelCellSize, float32(key.y) * voxelCellSize, float32(key.z) * voxelCellSize}
+
+			//use this instead for avg location, but grid looks nicer
+			//avgLocation := mgl32.Vec3.Mul(sumLocation, float32(1)/float32(len(entryContainer)))
+
+			avgColor := mgl32.Vec3.Mul(sumColor, float32(1)/float32(len(entryContainer)))
+
+			averagedPoints[iter] = avgLocation
+			averagedColors[iter] = avgColor
+
+			iter++
+		}
+
+		rexContent.PointLists[i].Points = averagedPoints
+		rexContent.PointLists[i].Colors = averagedColors
+	}
+}
+
+func GetGridLocationOfVec3(vec3 mgl32.Vec3, cellSize float32) GridLocation {
+	return GridLocation{
+		int(vec3[0] / cellSize),
+		int(vec3[1] / cellSize),
+		int(vec3[2] / cellSize),
+	}
+}
+
+// ReducePointListDensityNaive heavily depends on pointList's spatial distribution to work correctly. works fine for laser scans to achieve desired counts/percentages.
+func ReducePointListDensityNaive(ctx *cli.Context, rexContent *rexfile.File) {
+	for i := 0; i < len(rexContent.PointLists); i++ {
+		originalPointListLength := len(rexContent.PointLists[i].Points)
+		reducedPointListLength := GetNewPointArraySize(originalPointListLength, ctx.Float64("val"), ctx.Bool("percent"))
+
+		if originalPointListLength <= reducedPointListLength {
+			color.Red.Println("Skipped pointList already smaller or equal to the desired size. PointListID:", rexContent.PointLists[i].ID)
+			continue
+		}
+
+		tempListPoints := make([]mgl32.Vec3, reducedPointListLength)
+		tempListColors := make([]mgl32.Vec3, reducedPointListLength)
+
+		for j := 0; j < reducedPointListLength; j++ {
+			adjustedIndex := int((float32(j) / float32(reducedPointListLength)) * float32(originalPointListLength))
+			tempListPoints[j] = rexContent.PointLists[i].Points[adjustedIndex]
+			tempListColors[j] = rexContent.PointLists[i].Colors[adjustedIndex]
+		}
+
+		rexContent.PointLists[i].Points = tempListPoints
+		rexContent.PointLists[i].Colors = tempListColors
+	}
+}
+
+func GetNewPointArraySize(pointListSize int, reduction float64, isPercentage bool) int {
 	if isPercentage {
 		return int(math.Ceil(float64(pointListSize) * reduction / 100))
 	} else {
