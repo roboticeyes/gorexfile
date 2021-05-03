@@ -24,6 +24,9 @@ func NewCube(id, matID uint64, size float32) (Mesh, Material) {
 	return mesh, mat
 }
 
+func NewTesti() {
+}
+
 func getCoords(scale float32) []mgl32.Vec3 {
 
 	return []mgl32.Vec3{
