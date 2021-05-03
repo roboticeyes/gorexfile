@@ -52,6 +52,7 @@ func main() {
 		commands.TranslateCommand,
 		commands.ExportCommand,
 		commands.MirrorCommand,
+		commands.DensityCommand,
 	}
 
 	err := app.Run(os.Args)
