@@ -3,12 +3,13 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"math"
+	"os"
+
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/gookit/color"
 	"github.com/roboticeyes/gorexfile/encoding/rexfile"
 	"github.com/urfave/cli/v2"
-	"math"
-	"os"
 )
 
 // DensityCommand reduces density of pointLists
@@ -184,7 +185,11 @@ func ReducePointListDensityNaive(ctx *cli.Context, rexContent *rexfile.File) {
 		for j := 0; j < reducedPointListLength; j++ {
 			adjustedIndex := int((float32(j) / float32(reducedPointListLength)) * float32(originalPointListLength))
 			tempListPoints[j] = rexContent.PointLists[i].Points[adjustedIndex]
-			tempListColors[j] = rexContent.PointLists[i].Colors[adjustedIndex]
+			if len(rexContent.PointLists[i].Colors) > 0 {
+				tempListColors[j] = rexContent.PointLists[i].Colors[adjustedIndex]
+			} else {
+				tempListColors[j] = mgl32.Vec3{1.0, 0.0, 1.0}
+			}
 		}
 
 		rexContent.PointLists[i].Points = tempListPoints
