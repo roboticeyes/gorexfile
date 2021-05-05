@@ -41,6 +41,20 @@ func BboxAction(ctx *cli.Context) error {
 			}
 		}
 	}
+	if len(rexContent.PointLists) > 0 {
+		for _, pl := range rexContent.PointLists {
+			for _, c := range pl.Points {
+				for i := 0; i < 3; i++ {
+					if c[i] < bbmin[i] {
+						bbmin[i] = c[i]
+					}
+					if c[i] > bbmax[i] {
+						bbmax[i] = c[i]
+					}
+				}
+			}
+		}
+	}
 	fmt.Println("BoundingBox in worldspace (z is up)")
 	fmt.Printf("\tmin: %9.2f %9.2f %9.2f\n", bbmin.X(), bbmin.Z(), bbmin.Y())
 	fmt.Printf("\tmax: %9.2f %9.2f %9.2f\n", bbmax.X(), bbmax.Z(), bbmax.Y())
