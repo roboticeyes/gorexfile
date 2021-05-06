@@ -111,6 +111,11 @@ func ReducePointListDensityVoxelBased(ctx *cli.Context, rexContent *rexfile.File
 	for i := 0; i < len(rexContent.PointLists); i++ {
 		originalPointListLength := len(rexContent.PointLists[i].Points)
 		voxelCellSize := float32(ctx.Float64("val"))
+		hasColor := len(rexContent.PointLists[i].Colors) > 0
+
+		if !hasColor {
+			rexContent.PointLists[i].Colors = make([]mgl32.Vec3, originalPointListLength)
+		}
 
 		//sort points into voxel construct
 		voxelGrid := make(map[GridLocation][]GridEntry)
@@ -155,7 +160,11 @@ func ReducePointListDensityVoxelBased(ctx *cli.Context, rexContent *rexfile.File
 		}
 
 		rexContent.PointLists[i].Points = averagedPoints
-		rexContent.PointLists[i].Colors = averagedColors
+		if hasColor {
+			rexContent.PointLists[i].Colors = averagedColors
+		} else {
+			rexContent.PointLists[i].Colors = nil
+		}
 	}
 }
 
@@ -172,10 +181,15 @@ func ReducePointListDensityNaive(ctx *cli.Context, rexContent *rexfile.File) {
 	for i := 0; i < len(rexContent.PointLists); i++ {
 		originalPointListLength := len(rexContent.PointLists[i].Points)
 		reducedPointListLength := GetNewPointArraySize(originalPointListLength, ctx.Float64("val"), ctx.Bool("percent"))
+		hasColor := len(rexContent.PointLists[i].Colors) > 0
 
 		if originalPointListLength <= reducedPointListLength {
 			color.Red.Println("Skipped pointList already smaller or equal to the desired size. PointListID:", rexContent.PointLists[i].ID)
 			continue
+		}
+
+		if !hasColor {
+			rexContent.PointLists[i].Colors = make([]mgl32.Vec3, originalPointListLength)
 		}
 
 		tempListPoints := make([]mgl32.Vec3, reducedPointListLength)
@@ -188,7 +202,11 @@ func ReducePointListDensityNaive(ctx *cli.Context, rexContent *rexfile.File) {
 		}
 
 		rexContent.PointLists[i].Points = tempListPoints
-		rexContent.PointLists[i].Colors = tempListColors
+		if hasColor {
+			rexContent.PointLists[i].Colors = tempListColors
+		} else {
+			rexContent.PointLists[i].Colors = nil
+		}
 	}
 }
 
