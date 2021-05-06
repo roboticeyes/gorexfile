@@ -183,6 +183,8 @@ func ReducePointListDensityNaive(ctx *cli.Context, rexContent *rexfile.File) {
 		reducedPointListLength := GetNewPointArraySize(originalPointListLength, ctx.Float64("val"), ctx.Bool("percent"))
 		hasColor := len(rexContent.PointLists[i].Colors) > 0
 
+		color.Red.Println("resolution argument should be preferred, especially for non-evenly distributed pointLists")
+
 		if originalPointListLength <= reducedPointListLength {
 			color.Red.Println("Skipped pointList already smaller or equal to the desired size. PointListID:", rexContent.PointLists[i].ID)
 			continue
