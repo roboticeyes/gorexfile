@@ -2,6 +2,7 @@ package rexfile
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
+	"math"
 )
 
 // NewCylinder returns a new cylinder with radius and height (meters)
@@ -20,42 +21,27 @@ func NewCylinder(id, matID uint64, radius float32, height float32) (Mesh, Materi
 	return mesh, mat
 }
 
-//values extracted from generated cylinder
 func getCylinderCoords(radius float32, height float32) []mgl32.Vec3 {
-	return []mgl32.Vec3{
-		{radius * (+0.000000e+000), height * 0.000000, radius * (+1.000000e+000)},
-		{radius * (+3.826834e-001), height * 0.000000, radius * (+9.238795e-001)},
-		{radius * (+7.071068e-001), height * 0.000000, radius * (+7.071068e-001)},
-		{radius * (+9.238795e-001), height * 0.000000, radius * (+3.826834e-001)},
-		{radius * (+1.000000e+000), height * 0.000000, radius * (+6.123234e-017)},
-		{radius * (+9.238795e-001), height * 0.000000, radius * (-3.826834e-001)},
-		{radius * (+7.071068e-001), height * 0.000000, radius * (-7.071068e-001)},
-		{radius * (+3.826834e-001), height * 0.000000, radius * (-9.238795e-001)},
-		{radius * (+1.224647e-016), height * 0.000000, radius * (-1.000000e+000)},
-		{radius * (-3.826834e-001), height * 0.000000, radius * (-9.238795e-001)},
-		{radius * (-7.071068e-001), height * 0.000000, radius * (-7.071068e-001)},
-		{radius * (-9.238795e-001), height * 0.000000, radius * (-3.826834e-001)},
-		{radius * (-1.000000e+000), height * 0.000000, radius * (-1.836970e-016)},
-		{radius * (-9.238795e-001), height * 0.000000, radius * (+3.826834e-001)},
-		{radius * (-7.071068e-001), height * 0.000000, radius * (+7.071068e-001)},
-		{radius * (-3.826834e-001), height * 0.000000, radius * (+9.238795e-001)},
-		{radius * (+0.000000e+000), height * 1.000000, radius * (+1.000000e+000)},
-		{radius * (+3.826834e-001), height * 1.000000, radius * (+9.238795e-001)},
-		{radius * (+7.071068e-001), height * 1.000000, radius * (+7.071068e-001)},
-		{radius * (+9.238795e-001), height * 1.000000, radius * (+3.826834e-001)},
-		{radius * (+1.000000e+000), height * 1.000000, radius * (+6.123234e-017)},
-		{radius * (+9.238795e-001), height * 1.000000, radius * (-3.826834e-001)},
-		{radius * (+7.071068e-001), height * 1.000000, radius * (-7.071068e-001)},
-		{radius * (+3.826834e-001), height * 1.000000, radius * (-9.238795e-001)},
-		{radius * (+1.224647e-016), height * 1.000000, radius * (-1.000000e+000)},
-		{radius * (-3.826834e-001), height * 1.000000, radius * (-9.238795e-001)},
-		{radius * (-7.071068e-001), height * 1.000000, radius * (-7.071068e-001)},
-		{radius * (-9.238795e-001), height * 1.000000, radius * (-3.826834e-001)},
-		{radius * (-1.000000e+000), height * 1.000000, radius * (-1.836970e-016)},
-		{radius * (-9.238795e-001), height * 1.000000, radius * (+3.826834e-001)},
-		{radius * (-7.071068e-001), height * 1.000000, radius * (+7.071068e-001)},
-		{radius * (-3.826834e-001), height * 1.000000, radius * (+9.238795e-001)},
+	const numberOfSegments = 16
+
+	coords := make([]mgl32.Vec3, numberOfSegments*2)
+	for i := 0; i < numberOfSegments; i++ {
+		angle := (2 * math.Pi) / float64(numberOfSegments)
+
+		coords[i] = mgl32.Vec3{
+			radius * float32(math.Sin(float64(i)*angle)),
+			0,
+			radius * float32(math.Cos(float64(i)*angle)),
+		}
+
+		coords[i+numberOfSegments] = mgl32.Vec3{
+			coords[i].X(),
+			height,
+			coords[i].Z(),
+		}
 	}
+
+	return coords
 }
 
 func getCylinderTriangles() []Triangle {
