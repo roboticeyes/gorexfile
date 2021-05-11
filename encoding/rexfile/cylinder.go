@@ -3,15 +3,18 @@ package rexfile
 import (
 	"github.com/go-gl/mathgl/mgl32"
 	"math"
+	"sort"
 )
 
 // NewCylinder returns a new cylinder with radius and height (meters)
 func NewCylinder(id, matID uint64, radius float32, height float32) (Mesh, Material) {
+	const numberOfSegments = 16
+
 	mesh := Mesh{
 		ID:         id,
 		Name:       "Cylinder",
-		Coords:     getCylinderCoords(radius, height),
-		Triangles:  getCylinderTriangles(),
+		Coords:     getCylinderCoords(radius, height, numberOfSegments),
+		Triangles:  getCylinderTriangles(numberOfSegments),
 		MaterialID: matID,
 	}
 
@@ -21,9 +24,7 @@ func NewCylinder(id, matID uint64, radius float32, height float32) (Mesh, Materi
 	return mesh, mat
 }
 
-func getCylinderCoords(radius float32, height float32) []mgl32.Vec3 {
-	const numberOfSegments = 16
-
+func getCylinderCoords(radius float32, height float32, numberOfSegments int) []mgl32.Vec3 {
 	coords := make([]mgl32.Vec3, numberOfSegments*2)
 	for i := 0; i < numberOfSegments; i++ {
 		angle := (2 * math.Pi) / float64(numberOfSegments)
@@ -44,67 +45,86 @@ func getCylinderCoords(radius float32, height float32) []mgl32.Vec3 {
 	return coords
 }
 
-func getCylinderTriangles() []Triangle {
-	return []Triangle{
-		{16, 0, 1},
-		{1, 17, 16},
-		{17, 1, 2},
-		{2, 18, 17},
-		{18, 2, 3},
-		{3, 19, 18},
-		{19, 3, 4},
-		{4, 20, 19},
-		{20, 4, 5},
-		{5, 21, 20},
-		{21, 5, 6},
-		{6, 22, 21},
-		{22, 6, 7},
-		{7, 23, 22},
-		{23, 7, 8},
-		{8, 24, 23},
-		{24, 8, 9},
-		{9, 25, 24},
-		{25, 9, 10},
-		{10, 26, 25},
-		{26, 10, 11},
-		{11, 27, 26},
-		{27, 11, 12},
-		{12, 28, 27},
-		{28, 12, 13},
-		{13, 29, 28},
-		{29, 13, 14},
-		{14, 30, 29},
-		{30, 14, 15},
-		{15, 31, 30},
-		{31, 15, 0},
-		{0, 16, 31},
-		{2, 1, 0},
-		{16, 17, 18},
-		{4, 3, 2},
-		{18, 19, 20},
-		{6, 5, 4},
-		{20, 21, 22},
-		{8, 7, 6},
-		{22, 23, 24},
-		{10, 9, 8},
-		{24, 25, 26},
-		{12, 11, 10},
-		{26, 27, 28},
-		{14, 13, 12},
-		{28, 29, 30},
-		{0, 15, 14},
-		{30, 31, 16},
-		{4, 2, 0},
-		{16, 18, 20},
-		{8, 6, 4},
-		{20, 22, 24},
-		{12, 10, 8},
-		{24, 26, 28},
-		{0, 14, 12},
-		{28, 30, 16},
-		{8, 4, 0},
-		{16, 20, 24},
-		{0, 12, 8},
-		{24, 28, 16},
+func getCylinderTriangles(numberOfSegments int) []Triangle {
+	baseShapeVertexRange := numberOfSegments
+	wallTriangles := make([]Triangle, baseShapeVertexRange*2)
+
+	ti := 0
+	for i := 0; i < baseShapeVertexRange; i++ {
+		a := i + baseShapeVertexRange
+		b := i
+		c := i + 1
+		d := i + 1 + baseShapeVertexRange
+
+		if d > numberOfSegments*2-1 {
+			d = baseShapeVertexRange
+			c = 0
+		}
+
+		wallTriangles[ti].V0 = uint32(a)
+		wallTriangles[ti].V1 = uint32(b)
+		wallTriangles[ti].V2 = uint32(c)
+		ti++
+		wallTriangles[ti].V0 = uint32(c)
+		wallTriangles[ti].V1 = uint32(d)
+		wallTriangles[ti].V2 = uint32(a)
+		ti++
 	}
+
+	capTriangles := make([]Triangle, baseShapeVertexRange*2-4)
+
+	currentValidVertices := make([]int, baseShapeVertexRange)
+	for i := range currentValidVertices {
+		currentValidVertices[i] = i
+	}
+
+	ti = 0
+	for len(currentValidVertices) > 2 {
+		sort.Ints(currentValidVertices)
+		var nextValidVertices []int
+		for i := 0; i < len(currentValidVertices)-1; i += 2 {
+
+			aIndex := 0
+			if i+2 < len(currentValidVertices) {
+				aIndex = i + 2
+			}
+
+			a := currentValidVertices[aIndex]
+			b := currentValidVertices[i+1]
+			c := currentValidVertices[i]
+
+			//add bottom tri
+			capTriangles[ti].V0 = uint32(a)
+			capTriangles[ti].V1 = uint32(b)
+			capTriangles[ti].V2 = uint32(c)
+			ti++
+
+			//add top tri
+			capTriangles[ti].V0 = uint32(c + baseShapeVertexRange)
+			capTriangles[ti].V1 = uint32(b + baseShapeVertexRange)
+			capTriangles[ti].V2 = uint32(a + baseShapeVertexRange)
+			ti++
+
+			//keep list of unique remaining vertices
+			if !contains(nextValidVertices, a) {
+				nextValidVertices = append(nextValidVertices, a)
+			}
+			if !contains(nextValidVertices, c) {
+				nextValidVertices = append(nextValidVertices, c)
+			}
+		}
+
+		currentValidVertices = nextValidVertices
+	}
+
+	return append(wallTriangles, capTriangles...)
+}
+
+func contains(arr []int, val int) bool {
+	for _, av := range arr {
+		if av == val {
+			return true
+		}
+	}
+	return false
 }
