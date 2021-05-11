@@ -6,10 +6,6 @@ import (
 
 // NewCylinder returns a new cylinder with radius and height (meters)
 func NewCylinder(id, matID uint64, radius float32, height float32) (Mesh, Material) {
-
-	// default geometry is 2 meters
-	//scale := size / 2.0
-
 	mesh := Mesh{
 		ID:         id,
 		Name:       "Cylinder",
